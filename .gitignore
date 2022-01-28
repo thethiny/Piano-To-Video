@@ -8,3 +8,5 @@ songs
 .vscode
 .pytest_cache
 __pycache__
+
+threading_test.py
