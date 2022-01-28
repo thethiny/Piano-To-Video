@@ -42,11 +42,12 @@ def get_note_video(
     shift_amount = 0
     if find_note is None:
         # Have to pitch shift
-        found = re.findall(r"([A-G][#]?)([0-9]{1,2})", note)
+        found = re.findall(r"([A-G][#]?) ?([0-9]{0,2})", note)
         if not found:
-            raise Exception(f"Could not find note {note}")
+            raise Exception(f"Could not find note: {note}")
         found = found[0]
-        note_, octave = found[0], int(found[1])
+        note_ = found[0].strip()
+        octave = int(found[1].strip()) if found[1].strip() else 1
         find_note_up = find_note_down = None
         make_note_up = make_note_down = None
         i = 1
@@ -105,10 +106,10 @@ def get_note_video(
         video_duration = 0
         end = start
     if video_duration < note_duration:
-        # Add black fill
+        # Add green screen fill
         black_fill = ColorClip(
             size=input_video.size,
-            color=(0, 0, 0),
+            color=(0, 255, 0),
             duration=note_duration - video_duration,
         )
         black_fill.set_fps(input_video.fps)
@@ -251,9 +252,10 @@ videos = list(results)
 
 concat_clip = mp.concatenate_videoclips(videos)
 
-if not os.path.exists(OUTPUT_FOLDER):
-    os.makedirs(OUTPUT_FOLDER)
-out_file = os.path.join(OUTPUT_FOLDER, output_path)
+output_path_folder = os.path.join(OUTPUT_FOLDER, argv[1].strip())
+if not os.path.exists(output_path_folder):
+    os.makedirs(output_path_folder)
+out_file = os.path.join(output_path_folder, output_path).replace('/', '\\')
 
 
 print(f"Saving to {out_file}")
