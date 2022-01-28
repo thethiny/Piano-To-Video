@@ -1,0 +1,10 @@
+*.exe
+*.txt
+debug
+input
+midi
+output
+songs
+.vscode
+.pytest_cache
+__pycache__
