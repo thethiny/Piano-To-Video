@@ -132,7 +132,7 @@ if __name__ == "__main__":
             lowest_clock = min(times) # Multiple of clock_size
 
             beat_size: float = (lowest_clock / clock_size)# Beats per clock 
-            separator_size = (numerator**2) // (beat_size)
+            separator_size = (numerator**2) / (beat_size)
 
         notes = get_track_notes(track_notes[track], lowest_clock, separator_size)
         notes = normalize_note_octaves(notes)
