@@ -4,19 +4,14 @@ import re
 from functools import partial
 from multiprocessing.pool import ThreadPool
 from sys import argv
-from tabnanny import verbose
-from threading import Thread, local
-from unittest import result
+from threading import local
 
 import librosa
-import moviepy.config as mpy_conf
 import moviepy.editor as mp
 import numpy
-from moviepy.audio.AudioClip import AudioArrayClip, AudioClip
-from moviepy.audio.io.AudioFileClip import AudioFileClip
-from moviepy.editor import ColorClip, clips_array
+from moviepy.audio.AudioClip import AudioArrayClip
+from moviepy.editor import ColorClip
 from moviepy.video.io.VideoFileClip import VideoFileClip
-from moviepy.video.VideoClip import VideoClip
 from proglog import TqdmProgressBarLogger
 from tqdm import tqdm
 
@@ -145,9 +140,16 @@ def get_note_video(
 def parse_notes(path):
     with open(path, "r", encoding="utf-8") as f:
         data = f.read().replace("-", ",").replace("–", ",")
-    bpm, notes = data.split("\n", 1)
-    bpm = int(bpm.strip())
-    bps = bpm / 60 * 4
+    tempo, notes = data.split("\n", 1)
+    tempo = tempo.split(" ")
+    if not tempo:
+        raise Exception("Could not find tempo information")
+    bpm = int(tempo[0].strip())
+    if len(tempo) == 1:  # Compatibility
+        beat_size = 4.0
+    else:
+        beat_size = float(tempo[1].strip())
+    bps = bpm / 60 * beat_size
     notes_data = []
     for line in notes.split("\n"):
         notes_data += [n.strip().upper() for n in line.split(",")]
@@ -164,7 +166,7 @@ def parse_notes(path):
             continue
         all_notes[last_note] = {"note": note, "duration": note_duration}
         last_note += 1
-    return bpm, all_notes
+    return bpm, beat_size, all_notes
 
 
 FFMPEG_BINARY_AAC = "ffmpeg.exe"
@@ -183,7 +185,7 @@ mappings_path = os.path.join(DATA_FOLDER, f"{argv[1]}.json")
 with open(mappings_path, "r") as f:
     mappings = json.load(f)
 
-bpm, notes = parse_notes(input_notes_path)
+bpm, beat_size, notes = parse_notes(input_notes_path)
 
 
 input_video = VideoFileClip(input_video_path)
@@ -211,9 +213,11 @@ def shift_pitch(clip, octaves):
 # input_video.audio = audio = input_video.audio.set_fps(48000) # type: ignore
 # sample_rate = audio.fps
 
-output_path = f"{argv[1]}_{argv[2]}_{bpm}.mp4"
+output_path = f"{argv[1]}_{argv[2]}_{bpm}_{beat_size}.mp4"
 
-print(f"Task:\nActor: {argv[1]} | Song: {argv[2]} | BPM: {bpm} | {len(notes)} notes")
+print(
+    f"Task -> Actor: {argv[1].strip().title()} | Song: {argv[2].replace('_', ' ').strip().title()} | BPM: {bpm} | Beats: {beat_size} ({beat_size//4}/4) | {len(notes)} notes"
+)
 # print("Sample Rate:", sample_rate)
 
 shared_local = local()

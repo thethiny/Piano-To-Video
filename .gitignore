@@ -1,12 +1,15 @@
 *.exe
 *.txt
+*.mid
+input/*
+midi/*
+songs/*
 debug
-input
-midi
 output
-songs
 .vscode
 .pytest_cache
 __pycache__
 
 threading_test.py
+
+!.gitkeep
