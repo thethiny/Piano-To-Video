@@ -214,7 +214,7 @@ def shift_pitch(clip, octaves):
 # input_video.audio = audio = input_video.audio.set_fps(48000) # type: ignore
 # sample_rate = audio.fps
 
-output_path = f"{argv[1]}_{argv[2]}_{bpm}_{beat_size}.mp4"
+output_path = f"{argv[2]}_{bpm}_{beat_size}_{argv[1]}.mp4"
 
 print(
     f"Task -> Actor: {argv[1].strip().title()} | Song: {argv[2].replace('_', ' ').strip().title()} | BPM: {bpm} | Beats: {beat_size} ({beat_size//4}/4) | {len(notes)} notes"

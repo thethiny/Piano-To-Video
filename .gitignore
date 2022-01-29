@@ -2,7 +2,7 @@
 *.txt
 *.mid
 *.aac
-*TEMP_mpy*.mp4
+*TEMP_MPY*.mp4
 input/*
 midi/*
 songs/*
