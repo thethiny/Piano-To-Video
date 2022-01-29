@@ -59,19 +59,27 @@ def get_separators(count, split_size):
         return ""
     string = ","*count
     if count >= split_size:
-        string = string[:-1] + "\n"
+        if count == 1:
+            string = "\n"
+        elif count == 2:
+            string = "\n\n"
+        else:
+            string = "\n" + string[1:-1] + "\n"
     return string
 
 def get_track_notes(track_messages, note_length, separator_size):
-    # BEAT_SIZE = 4
     text_string = ""
     last_note_type = None
     for note in track_messages:
         if note.type == "note_off":
-            note_time = (note.time / note_length)
+            separators = note_time = note.time / note_length
             if last_note_type == "note_on":
-                note_time -= 1
-            text_string += get_separators(note_time, separator_size)
+                separators -= 1
+            seps = get_separators(separators, separator_size)
+            if last_note_type == "note_on":# and seps:
+                if seps:
+                    seps = seps[:-1] + "X" + seps[-1] # X marks the end of a note # Need to see why X not working for note_on
+            text_string += seps
             last_note_type = "note_off"
             continue
         if note.type != "note_on":
@@ -81,20 +89,22 @@ def get_track_notes(track_messages, note_length, separator_size):
         if last_note_type == "note_on" and note.time == 0: # Duplicate note
             continue
         
-        note_time = note.time / note_length
-        note_time = int(note_time)
+        separators = note_time = note.time / note_length
+        # separators = int(note_time)
 
         if last_note_type == "note_on":
-            note_time -= 1
+            separators -= 1
 
-        text_string += get_separators(note_time, separator_size)
+        text_string += get_separators(separators, separator_size)
         text_string += f"{note_idx_to_str(note.note)},"
 
         last_note_type = "note_on"
         
+    if text_string[0] == "\n": # Replace first newline with a comma
+        text_string = "," + text_string[1:]
     return text_string
 
-def normalize_note_octaves(notes):
+def normalize_note_octaves(notes): # TODO: Normalization should be segment based and not overall based
     """
     Reads the notes and shifts them all to start at Octave 1, and remove 1 from the note
     """
