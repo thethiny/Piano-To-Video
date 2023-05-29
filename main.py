@@ -237,8 +237,9 @@ def process_note(mappings, notes, video_path, note):
         mappings, notes[note], shared_local.video, shared_local.sample_rate
     )
 
-
-pool = ThreadPool(6)
+threads = os.cpu_count()
+pool = ThreadPool(os.cpu_count())
+print("Threads:", threads)
 process_note_partial = partial(process_note, mappings, notes, input_video_path)
 results = tqdm(
     pool.imap(process_note_partial, notes.keys()), desc="Notes", total=len(notes)
