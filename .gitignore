@@ -1,5 +1,6 @@
 *.exe
 *.txt
+!requirements.txt
 *.mid
 *.aac
 *TEMP_MPY*.mp4
