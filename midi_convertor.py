@@ -44,8 +44,8 @@ def parse_midi_file(midi_path):
             if msg.type == 'note_on' or msg.type == "note_off":
                 track_notes.setdefault(track.name, []).append(msg)
         print(f"Track {i} has {len(messages)} messages")
-        with open(f"debug/{midi_path}_track_{i}.json", "w", encoding='utf-8') as f:
-            json.dump(messages, f, ensure_ascii=False, indent=4)
+        # with open(f"debug/{midi_path}_track_{i}.json", "w", encoding='utf-8') as f:
+        #     json.dump(messages, f, ensure_ascii=False, indent=4)
 
     # return int(bpm), int(note_length), track_notes, clocks
     return int(bpm), int(clocks), int(numerator), track_notes
@@ -79,6 +79,10 @@ def get_track_notes(track_messages, note_length, separator_size):
             if last_note_type == "note_on":# and seps:
                 if seps:
                     seps = seps[:-1] + "X" + seps[-1] # X marks the end of a note # Need to see why X not working for note_on
+                # else: 
+                #     if len(text_string) > 1 and text_string[-2] in ",\n": # if there is a place for silence, add it
+                #         # Will never happen because if there is a place for silence, then seps will not be empty
+                #         text_string = text_string[:-1] + "X" + text_string[-1]
             text_string += seps
             last_note_type = "note_off"
             continue
